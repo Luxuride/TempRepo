@@ -12,9 +12,12 @@ type MainPost = {
 
 type PostStructure = Array<MainPost | string>;
 
+
+
 type DomRef = Array<
     {
-        mainHeader: HTMLButtonElement
+        root: HTMLDivElement,
+        mainHeader: HTMLButtonElement,
         mainContent: DomRefMainContent
     }
     >;
@@ -22,11 +25,14 @@ type DomRef = Array<
 type DomRefMainContent = {
     content: HTMLDivElement,
     children: Array<
-        {
-            smallHeader: HTMLButtonElement
-            smallContent: HTMLParagraphElement
-        } | HTMLParagraphElement
+        DomRefSmallContent
+        | HTMLParagraphElement
         >
+}
+type DomRefSmallContent = {
+    root: HTMLDivElement
+    smallHeader: HTMLButtonElement
+    smallContent: HTMLParagraphElement
 }
 
 const ContentRoot = document.querySelector("#content");
@@ -34,7 +40,35 @@ const ContentRoot = document.querySelector("#content");
 const RenderFrom: PostStructure = [
     "vdsdv",
     {
-        name: "huzugzui",
+        name: "První menu",
+        opened: false,
+        Items: [
+            "vsdvsdvsd",
+            {
+                name: "vdsvsd",
+                opened: false,
+                text: "vdsvsdvs"
+            } as SmallPost,
+            {
+                opened: false,
+                text: "vsdvdsvsd"
+            } as SmallPost
+
+        ]
+    },
+    "Tohle je Paragraf" +
+    "\n" +
+    "Quis consequatur eaque expedita iste aut dolorem ut nemo. Minus dolore nostrum suscipit. Aut similique et ea. Sit inventore dolorem nulla illo. Facilis ea esse quibusdam. Ut molestias voluptas quibusdam maiores in tenetur doloremque molestiae.\n" +
+    "\n" +
+    "Dolor itaque odit cum qui. Esse sunt reiciendis maiores. Quam quidem error minus autem dolorem ex cupiditate et. Aut omnis accusamus velit dignissimos. Sapiente aliquam nemo dolorem perferendis voluptate velit dolorem.\n" +
+    "\n" +
+    "Maiores ut tenetur sequi culpa et. Et qui iusto est est ab ex expedita. Magni laboriosam omnis dolorem necessitatibus. Accusamus nesciunt velit eaque ea molestiae et voluptatum.\n" +
+    "\n" +
+    "Voluptatibus qui minus consequatur corrupti sed suscipit. Ut dolor et sapiente non est. Voluptatem aperiam eos voluptate temporibus eum. Quasi nihil aut officia quis commodi. Quisquam sunt dolorem hic unde et nobis et commodi. Fuga sunt praesentium nihil mollitia.\n" +
+    "\n" +
+    "Ut et illo repellat. Enim et facere molestiae. Earum nihil rerum commodi ut nostrum et harum voluptate. Quas natus quo sint modi. Excepturi quia perspiciatis quia dolorem aspernatur.",
+    {
+        name: "Druhé",
         opened: false,
         Items: [
             "vsdvsdvsd",
@@ -58,25 +92,32 @@ const DomContent: DomRef = [];
 function OnMainPanelClick(item: number) {
     console.log(item);
     if ((RenderFrom[item] as MainPost).opened) {
-        DomContent[item].mainContent.content.classList.remove("open");
+        console.log("dsvds");
+        DomContent[item].root.classList.remove("Open");
         (RenderFrom[item] as MainPost).opened = false;
         // Close small posts
         for (let i = 0; i < (RenderFrom[item] as MainPost).Items.length; i++) {
             if (typeof (RenderFrom[item] as MainPost).Items[i] !== "string") {
+                (DomContent[item].mainContent.children[i] as DomRefSmallContent)?.root.classList.remove("Open");
                 ((RenderFrom[item] as MainPost).Items[i] as SmallPost).opened = false;
             }
         }
     } else {
         // Close Main posts
-        for (const checkItem in RenderFrom) {
-            if ((RenderFrom[checkItem] as MainPost).opened) {
+        for (let i = 0; i < RenderFrom.length; i++) {
+            if ((RenderFrom[i] as MainPost).opened) {
                 // Close Small posts
-                for (const checkSmallItem in (RenderFrom[checkItem] as MainPost).Items) {
-                    ((RenderFrom[checkItem] as MainPost).Items[checkSmallItem] as SmallPost).opened = false;
+                for (let j = 0; j < (RenderFrom[i] as MainPost).Items.length; j++) {
+                    if (typeof (RenderFrom[i] as MainPost).Items[j] !== "string") {
+                        (DomContent[i].mainContent.children[j] as DomRefSmallContent)?.root.classList.remove("Open");
+                        ((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened = false;
+                    }
                 }
+                DomContent[i].root.classList.remove("Open");
+                (RenderFrom[i] as MainPost).opened = false;
             }
         }
-        console.log(RenderFrom[item]);
+        DomContent[item].root.classList.add("Open");
         (RenderFrom[item] as MainPost).opened = true;
     }
 }
@@ -91,7 +132,6 @@ function OnSmallPanelClick(i: number, j: number) {
         }
         ((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened = true;
     }
-    RenderPosts();
 }
 
 function RenderPosts() {
@@ -119,13 +159,15 @@ function RenderPosts() {
             MainPanelHeader.classList.add("MainPanelHeader");
             MainPanelHeader.classList.add("pure-menu-heading");
             MainPanelHeader.classList.add("pure-button");
-            MainPanelHeader.addEventListener("click", () => {OnMainPanelClick(i-1);})
+            const passValue = i;
+            MainPanelHeader.addEventListener("click", () => {OnMainPanelClick(passValue);})
 
             // Creating Panel Header
             const PanelTitle = document.createElement("h2") as HTMLHeadingElement;
             const PanelOpenSpan = document.createElement("span") as HTMLSpanElement;
             const PanelTitleSpan = document.createElement("span") as HTMLSpanElement;
-            PanelOpenSpan.innerText = rendered.opened ? "V " : "> ";
+            PanelOpenSpan.innerText = ">";
+            PanelOpenSpan.classList.add("PanelOpenSpan");
             PanelTitle.appendChild(PanelOpenSpan);
             PanelTitleSpan.innerText = item.name;
             PanelTitle.appendChild(PanelTitleSpan);
@@ -140,6 +182,7 @@ function RenderPosts() {
                 PanelContent.classList.add("Open");
             }
             DomContent[i] = {
+                root: MainPanel,
                 mainHeader: MainPanelHeader,
                 mainContent: {
                     content: PanelContent,
@@ -193,7 +236,8 @@ function RenderPosts() {
                     }
                     SmallPanel.appendChild(SmallPanelContent);
                     PanelContent.appendChild(SmallPanel);
-                    (DomContent[i].mainContent.children[j] as {smallHeader: HTMLButtonElement, smallContent: HTMLParagraphElement}) = {
+                    (DomContent[i].mainContent.children[j] as DomRefSmallContent) = {
+                        root: SmallPanel,
                         smallHeader: SmallPanelHeader,
                         smallContent: SmallPanelContent
                     };
