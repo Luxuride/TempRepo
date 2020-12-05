@@ -1,0 +1,44 @@
+#nav {
+    position: fixed;
+    top: 0;
+    height: 5vh;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: lightgrey;
+
+    box-shadow: 2px 2px 6px 0px rgba(0,0,0,0.8);
+    -webkit-box-shadow: 2px 2px 6px 0px rgba(0,0,0,0.8);
+    -moz-box-shadow: 2px 2px 6px 0px rgba(0,0,0,0.6);
+}
+#nav > div > h1 {
+    margin: 0;
+    padding: 0;
+}
+
+#content {
+    margin-top: 6vh;
+}
+
+.MainPanelContent, .SmallPanelContent {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.MainPanelHeader, .SmallPanelHeader {
+    background-color: white !important;
+    width: 100%;
+}
+.MainPanelHeader > h2, .SmallPanelHeader > h3 {
+    margin: 0;
+    text-align: left;
+}
+
+.MainPanelContent, .SmallPanelContent {
+    display: none;
+}
+
+.Open {
+    display: block;
+}
