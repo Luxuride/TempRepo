@@ -50,8 +50,9 @@ const RenderFrom: PostStructure = [
                 text: "vdsvsdvs"
             } as SmallPost,
             {
+                name: "ddddd",
                 opened: false,
-                text: "vsdvdsvsd"
+                text: "ssssss"
             } as SmallPost
 
         ]
@@ -123,13 +124,19 @@ function OnMainPanelClick(item: number) {
 }
 function OnSmallPanelClick(i: number, j: number) {
     if (((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened) {
+        (DomContent[i].mainContent.children[j] as DomRefSmallContent).root.classList.remove("Open");
         ((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened = false;
     } else {
-        for (let item of (RenderFrom[i] as MainPost).Items) {
-            if (typeof item === "object") {
-                item.opened = false;
+        for (let item = 0; item < (RenderFrom[i] as MainPost).Items.length; item++) {
+            if (typeof (RenderFrom[i] as MainPost).Items[item] !== "string") {
+                (DomContent[i].mainContent.children[item] as DomRefSmallContent)?.root.classList.remove("Open");
+                ((RenderFrom[i] as MainPost).Items[item] as SmallPost).opened = false;
             }
         }
+        (DomContent[i].mainContent.children[j] as DomRefSmallContent).root.classList.add("Open");
+        console.log(RenderFrom);
+        console.log(i);
+        console.log(j);
         ((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened = true;
     }
 }
@@ -210,7 +217,9 @@ function RenderPosts() {
                     const SmallPanel = document.createElement("div") as HTMLDivElement;
                     SmallPanel.classList.add("SmallPanel");
                     const SmallPanelHeader = document.createElement("button") as HTMLButtonElement;
-                    SmallPanelHeader.addEventListener("click", () => {OnSmallPanelClick(i, j)})
+                    const iConst = i;
+                    const jConst = j;
+                    SmallPanelHeader.addEventListener("click", () => {OnSmallPanelClick(iConst, jConst)})
 
                     SmallPanelHeader.classList.add("SmallPanelHeader");
                     SmallPanelHeader.classList.add("pure-menu-heading");
@@ -219,7 +228,8 @@ function RenderPosts() {
                     // Creating Small Panel Header
                     const SmallPanelTitle = document.createElement("h3") as HTMLHeadingElement;
                     const SmallPanelOpenSpan = document.createElement("span") as HTMLSpanElement;
-                    SmallPanelOpenSpan.innerText = smallRendered.opened ? "V " : "> ";
+                    SmallPanelOpenSpan.innerText = ">";
+                    SmallPanelOpenSpan.classList.add("PanelOpenSpan");
                     SmallPanelTitle.appendChild(SmallPanelOpenSpan);
                     const SmallPanelTitleSpan = document.createElement("span") as HTMLSpanElement;
                     SmallPanelTitleSpan.innerText = smallItem.name ?? '';
@@ -242,6 +252,7 @@ function RenderPosts() {
                         smallContent: SmallPanelContent
                     };
                 }
+                j++;
             }
             MainPanel.appendChild(PanelContent);
 

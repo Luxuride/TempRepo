@@ -48,7 +48,7 @@ Span.PanelOpenSpan {
     display: block;
 }
 
-.Open > Button > H2 > Span.PanelOpenSpan {
+.Open > Button > H2 > Span.PanelOpenSpan, .Open > Button > H3 > Span.PanelOpenSpan {
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -o-transform: rotate(90deg);
