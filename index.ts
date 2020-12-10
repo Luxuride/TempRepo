@@ -17,7 +17,7 @@ type PostStructure = Array<MainPost | string>;
 type DomRef = Array<
     {
         root: HTMLDivElement,
-        mainHeader: HTMLButtonElement,
+        mainHeader: HTMLDivElement,
         mainContent: DomRefMainContent
     }
     >;
@@ -47,7 +47,15 @@ const RenderFrom: PostStructure = [
             {
                 name: "vdsvsd",
                 opened: false,
-                text: "vdsvsdvs"
+                text: `Iste repellendus accusamus distinctio et omnis. Sed aut earum sapiente. Quis autem quidem commodi voluptatem impedit.
+
+                Voluptatum nihil non fugiat dolorem impedit aliquam reprehenderit. Aut quibusdam mollitia labore voluptatibus ut. Delectus et sit labore ut molestiae quasi iusto. Autem praesentium voluptatem in. Quisquam doloremque velit fugit consequatur impedit cum. Voluptate et ut et accusantium eveniet sunt.
+                
+                Sed illum voluptate sed dolores. Atque illo corporis cumque minus incidunt iure illum est. Non quia doloribus culpa earum.
+                
+                Corrupti libero non illum ea. Voluptate odio voluptates nisi quis. Ab maiores natus est consequuntur. Ex accusantium sunt maiores. Est dolores necessitatibus odit enim.
+                
+                Earum quas est dolor sed nostrum odit. Tenetur repellat itaque enim rerum ea recusandae assumenda ea. Praesentium possimus nemo ad cupiditate aliquid.`
             } as SmallPost,
             {
                 name: "ddddd",
@@ -89,12 +97,14 @@ const RenderFrom: PostStructure = [
 
 const DomContent: DomRef = [];
 
+document.addEventListener("scroll", () => {
+})
 
 function OnMainPanelClick(item: number) {
     console.log(item);
     if ((RenderFrom[item] as MainPost).opened) {
-        console.log("dsvds");
-        DomContent[item].root.classList.remove("Open");
+        DomContent[item].mainHeader.classList.remove("Open");
+        DomContent[item].mainContent.content.classList.remove("Open");
         (RenderFrom[item] as MainPost).opened = false;
         // Close small posts
         for (let i = 0; i < (RenderFrom[item] as MainPost).Items.length; i++) {
@@ -114,11 +124,13 @@ function OnMainPanelClick(item: number) {
                         ((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened = false;
                     }
                 }
-                DomContent[i].root.classList.remove("Open");
+                DomContent[i].mainHeader.classList.remove("Open");
+                DomContent[i].mainContent.content.classList.remove("Open");
                 (RenderFrom[i] as MainPost).opened = false;
             }
         }
-        DomContent[item].root.classList.add("Open");
+        DomContent[item].mainHeader.classList.add("Open");
+        DomContent[item].mainContent.content.classList.add("Open");
         (RenderFrom[item] as MainPost).opened = true;
     }
 }
@@ -154,7 +166,7 @@ function RenderPosts() {
             paragraph.innerText = item;
             console.log(paragraph.innerText);
             // Put paragraph into content root
-            ContentRoot?.appendChild(paragraph);
+            document.body.appendChild(paragraph);
         }
         // Else it is panel
         else {
@@ -162,7 +174,7 @@ function RenderPosts() {
             const rendered = item as MainPost;
             const MainPanel = document.createElement("div") as HTMLDivElement;
             MainPanel.classList.add("MainPanel");
-            const MainPanelHeader = document.createElement("button") as HTMLButtonElement;
+            const MainPanelHeader = document.createElement("div") as HTMLDivElement;
             MainPanelHeader.classList.add("MainPanelHeader");
             MainPanelHeader.classList.add("pure-menu-heading");
             MainPanelHeader.classList.add("pure-button");
@@ -179,7 +191,7 @@ function RenderPosts() {
             PanelTitleSpan.innerText = item.name;
             PanelTitle.appendChild(PanelTitleSpan);
             MainPanelHeader.appendChild(PanelTitle);
-            MainPanel.appendChild(MainPanelHeader);
+            document.body.appendChild(MainPanelHeader);
 
             // Creating panel content
             const PanelContent = document.createElement("div") as HTMLDivElement;
@@ -220,7 +232,6 @@ function RenderPosts() {
                     const iConst = i;
                     const jConst = j;
                     SmallPanelHeader.addEventListener("click", () => {OnSmallPanelClick(iConst, jConst)})
-
                     SmallPanelHeader.classList.add("SmallPanelHeader");
                     SmallPanelHeader.classList.add("pure-menu-heading");
                     SmallPanelHeader.classList.add("pure-button");
@@ -254,10 +265,7 @@ function RenderPosts() {
                 }
                 j++;
             }
-            MainPanel.appendChild(PanelContent);
-
-            // Put panel into content root
-            ContentRoot?.appendChild(MainPanel);
+            document.body.appendChild(PanelContent);
         }
         i++;
     }
