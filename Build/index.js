@@ -11,19 +11,18 @@ const RenderFrom = [
                 name: "vdsvsd",
                 opened: false,
                 text: `Iste repellendus accusamus distinctio et omnis. Sed aut earum sapiente. Quis autem quidem commodi voluptatem impedit.
-
                 Voluptatum nihil non fugiat dolorem impedit aliquam reprehenderit. Aut quibusdam mollitia labore voluptatibus ut. Delectus et sit labore ut molestiae quasi iusto. Autem praesentium voluptatem in. Quisquam doloremque velit fugit consequatur impedit cum. Voluptate et ut et accusantium eveniet sunt.
-                
                 Sed illum voluptate sed dolores. Atque illo corporis cumque minus incidunt iure illum est. Non quia doloribus culpa earum.
-                
                 Corrupti libero non illum ea. Voluptate odio voluptates nisi quis. Ab maiores natus est consequuntur. Ex accusantium sunt maiores. Est dolores necessitatibus odit enim.
-                
                 Earum quas est dolor sed nostrum odit. Tenetur repellat itaque enim rerum ea recusandae assumenda ea. Praesentium possimus nemo ad cupiditate aliquid.`
             },
             {
-                name: "ddddd",
                 opened: false,
-                text: "ssssss"
+                text: `Iste repellendus accusamus distinctio et omnis. Sed aut earum sapiente. Quis autem quidem commodi voluptatem impedit.
+                Voluptatum nihil non fugiat dolorem impedit aliquam reprehenderit. Aut quibusdam mollitia labore voluptatibus ut. Delectus et sit labore ut molestiae quasi iusto. Autem praesentium voluptatem in. Quisquam doloremque velit fugit consequatur impedit cum. Voluptate et ut et accusantium eveniet sunt.
+                Sed illum voluptate sed dolores. Atque illo corporis cumque minus incidunt iure illum est. Non quia doloribus culpa earum.
+                Corrupti libero non illum ea. Voluptate odio voluptates nisi quis. Ab maiores natus est consequuntur. Ex accusantium sunt maiores. Est dolores necessitatibus odit enim.
+                Earum quas est dolor sed nostrum odit. Tenetur repellat itaque enim rerum ea recusandae assumenda ea. Praesentium possimus nemo ad cupiditate aliquid.`
             }
         ]
     },
@@ -56,10 +55,23 @@ const RenderFrom = [
     }
 ];
 const DomContent = [];
-document.addEventListener("scroll", () => {
+let BigContentRef;
+let SmallContentRef;
+window.addEventListener("scroll", () => {
+    if (BigContentRef) {
+        if (SmallContentRef) {
+            // TODO: fix fixed -200
+            if (window.scrollY >= SmallContentRef.offsetTop + SmallContentRef.clientHeight - window.innerHeight / 1.25) {
+                window.scrollTo(0, SmallContentRef.offsetTop + SmallContentRef.clientHeight - window.innerHeight / 1.25);
+            }
+        }
+        else if (window.scrollY >= BigContentRef.offsetTop + BigContentRef.clientHeight - window.innerHeight / 1.25) {
+            window.scrollTo(0, BigContentRef.offsetTop + BigContentRef.clientHeight - window.innerHeight / 1.25);
+        }
+    }
 });
 function OnMainPanelClick(item) {
-    console.log(item);
+    SmallContentRef = null;
     if (RenderFrom[item].opened) {
         DomContent[item].mainHeader.classList.remove("Open");
         DomContent[item].mainContent.content.classList.remove("Open");
@@ -71,6 +83,7 @@ function OnMainPanelClick(item) {
                 RenderFrom[item].Items[i].opened = false;
             }
         }
+        BigContentRef = null;
     }
     else {
         // Close Main posts
@@ -90,6 +103,8 @@ function OnMainPanelClick(item) {
         }
         DomContent[item].mainHeader.classList.add("Open");
         DomContent[item].mainContent.content.classList.add("Open");
+        console.log(DomContent[item].mainContent.childrenRoot);
+        BigContentRef = DomContent[item].mainContent.childrenRoot;
         RenderFrom[item].opened = true;
     }
 }
@@ -97,6 +112,7 @@ function OnSmallPanelClick(i, j) {
     if (RenderFrom[i].Items[j].opened) {
         DomContent[i].mainContent.children[j].root.classList.remove("Open");
         RenderFrom[i].Items[j].opened = false;
+        SmallContentRef = null;
     }
     else {
         for (let item = 0; item < RenderFrom[i].Items.length; item++) {
@@ -106,10 +122,8 @@ function OnSmallPanelClick(i, j) {
             }
         }
         DomContent[i].mainContent.children[j].root.classList.add("Open");
-        console.log(RenderFrom);
-        console.log(i);
-        console.log(j);
         RenderFrom[i].Items[j].opened = true;
+        SmallContentRef = DomContent[i].mainContent.children[j].root ?? DomContent[i].mainContent.children[j];
     }
 }
 function RenderPosts() {
@@ -162,6 +176,7 @@ function RenderPosts() {
                 mainHeader: MainPanelHeader,
                 mainContent: {
                     content: PanelContent,
+                    childrenRoot: null,
                     children: []
                 }
             };
@@ -176,11 +191,21 @@ function RenderPosts() {
                 }
                 else if (!smallItem.name) {
                     const smallRendered = smallItem;
-                    const paragraph = document.createElement("paragraph");
+                    const smallDiv = document.createElement("div");
+                    smallDiv.classList.add("Rollable");
+                    const paragraph = document.createElement("p");
+                    paragraph.innerText = smallItem.text;
+                    const hiderDiv = document.createElement("div");
+                    smallDiv.appendChild(paragraph);
+                    smallDiv.appendChild(hiderDiv);
                     if (!smallRendered.opened) {
-                        paragraph.classList.add("hidable");
+                        smallDiv.classList.add("Hidable");
                     }
-                    PanelContent.appendChild(paragraph);
+                    smallDiv.addEventListener('click', () => {
+                        console.log("clicked");
+                        smallDiv.classList.remove('Hidable');
+                    });
+                    PanelContent.appendChild(smallDiv);
                 }
                 else {
                     const smallRendered = smallItem;
@@ -218,6 +243,7 @@ function RenderPosts() {
                         smallHeader: SmallPanelHeader,
                         smallContent: SmallPanelContent
                     };
+                    DomContent[i].mainContent.childrenRoot = PanelContent;
                 }
                 j++;
             }

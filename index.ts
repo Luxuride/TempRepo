@@ -24,6 +24,7 @@ type DomRef = Array<
 
 type DomRefMainContent = {
     content: HTMLDivElement,
+    childrenRoot: HTMLDivElement | null,
     children: Array<
         DomRefSmallContent
         | HTMLParagraphElement
@@ -48,19 +49,18 @@ const RenderFrom: PostStructure = [
                 name: "vdsvsd",
                 opened: false,
                 text: `Iste repellendus accusamus distinctio et omnis. Sed aut earum sapiente. Quis autem quidem commodi voluptatem impedit.
-
                 Voluptatum nihil non fugiat dolorem impedit aliquam reprehenderit. Aut quibusdam mollitia labore voluptatibus ut. Delectus et sit labore ut molestiae quasi iusto. Autem praesentium voluptatem in. Quisquam doloremque velit fugit consequatur impedit cum. Voluptate et ut et accusantium eveniet sunt.
-                
                 Sed illum voluptate sed dolores. Atque illo corporis cumque minus incidunt iure illum est. Non quia doloribus culpa earum.
-                
                 Corrupti libero non illum ea. Voluptate odio voluptates nisi quis. Ab maiores natus est consequuntur. Ex accusantium sunt maiores. Est dolores necessitatibus odit enim.
-                
                 Earum quas est dolor sed nostrum odit. Tenetur repellat itaque enim rerum ea recusandae assumenda ea. Praesentium possimus nemo ad cupiditate aliquid.`
             } as SmallPost,
             {
-                name: "ddddd",
                 opened: false,
-                text: "ssssss"
+                text: `Iste repellendus accusamus distinctio et omnis. Sed aut earum sapiente. Quis autem quidem commodi voluptatem impedit.
+                Voluptatum nihil non fugiat dolorem impedit aliquam reprehenderit. Aut quibusdam mollitia labore voluptatibus ut. Delectus et sit labore ut molestiae quasi iusto. Autem praesentium voluptatem in. Quisquam doloremque velit fugit consequatur impedit cum. Voluptate et ut et accusantium eveniet sunt.
+                Sed illum voluptate sed dolores. Atque illo corporis cumque minus incidunt iure illum est. Non quia doloribus culpa earum.
+                Corrupti libero non illum ea. Voluptate odio voluptates nisi quis. Ab maiores natus est consequuntur. Ex accusantium sunt maiores. Est dolores necessitatibus odit enim.
+                Earum quas est dolor sed nostrum odit. Tenetur repellat itaque enim rerum ea recusandae assumenda ea. Praesentium possimus nemo ad cupiditate aliquid.`
             } as SmallPost
 
         ]
@@ -97,11 +97,24 @@ const RenderFrom: PostStructure = [
 
 const DomContent: DomRef = [];
 
-document.addEventListener("scroll", () => {
+let BigContentRef: HTMLDivElement | null;
+let SmallContentRef: HTMLDivElement | null;
+
+window.addEventListener("scroll", () => {
+    if (BigContentRef) {
+        if (SmallContentRef) {
+            // TODO: fix fixed -200
+            if (window.scrollY >= SmallContentRef.offsetTop + SmallContentRef.clientHeight - window.innerHeight / 1.25) {
+                window.scrollTo(0, SmallContentRef.offsetTop + SmallContentRef.clientHeight - window.innerHeight / 1.25);
+            }
+        } else if (window.scrollY >= BigContentRef.offsetTop + BigContentRef.clientHeight - window.innerHeight / 1.25) {
+            window.scrollTo(0, BigContentRef.offsetTop + BigContentRef.clientHeight - window.innerHeight / 1.25);
+        }
+    }
 })
 
 function OnMainPanelClick(item: number) {
-    console.log(item);
+    SmallContentRef = null;
     if ((RenderFrom[item] as MainPost).opened) {
         DomContent[item].mainHeader.classList.remove("Open");
         DomContent[item].mainContent.content.classList.remove("Open");
@@ -113,6 +126,7 @@ function OnMainPanelClick(item: number) {
                 ((RenderFrom[item] as MainPost).Items[i] as SmallPost).opened = false;
             }
         }
+        BigContentRef = null;
     } else {
         // Close Main posts
         for (let i = 0; i < RenderFrom.length; i++) {
@@ -131,6 +145,8 @@ function OnMainPanelClick(item: number) {
         }
         DomContent[item].mainHeader.classList.add("Open");
         DomContent[item].mainContent.content.classList.add("Open");
+        console.log(DomContent[item].mainContent.childrenRoot);
+        BigContentRef = DomContent[item].mainContent.childrenRoot;
         (RenderFrom[item] as MainPost).opened = true;
     }
 }
@@ -138,6 +154,7 @@ function OnSmallPanelClick(i: number, j: number) {
     if (((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened) {
         (DomContent[i].mainContent.children[j] as DomRefSmallContent).root.classList.remove("Open");
         ((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened = false;
+        SmallContentRef = null;
     } else {
         for (let item = 0; item < (RenderFrom[i] as MainPost).Items.length; item++) {
             if (typeof (RenderFrom[i] as MainPost).Items[item] !== "string") {
@@ -146,10 +163,8 @@ function OnSmallPanelClick(i: number, j: number) {
             }
         }
         (DomContent[i].mainContent.children[j] as DomRefSmallContent).root.classList.add("Open");
-        console.log(RenderFrom);
-        console.log(i);
-        console.log(j);
         ((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened = true;
+        SmallContentRef = (DomContent[i].mainContent.children[j] as DomRefSmallContent).root ?? DomContent[i].mainContent.children[j];
     }
 }
 
@@ -205,6 +220,7 @@ function RenderPosts() {
                 mainHeader: MainPanelHeader,
                 mainContent: {
                     content: PanelContent,
+                    childrenRoot: null,
                     children: []
                 }
             }
@@ -218,11 +234,21 @@ function RenderPosts() {
                     PanelContent.appendChild(paragraph);
                 } else if (!(smallItem as SmallPost).name) {
                     const smallRendered = smallItem as SmallPost;
-                    const paragraph = document.createElement("paragraph") as HTMLParagraphElement;
+                    const smallDiv = document.createElement("div") as HTMLDivElement;
+                    smallDiv.classList.add("Rollable");
+                    const paragraph = document.createElement("p") as HTMLParagraphElement;
+                    paragraph.innerText = (smallItem as SmallPost).text;
+                    const hiderDiv = document.createElement("div") as HTMLDivElement;
+                    smallDiv.appendChild(paragraph);
+                    smallDiv.appendChild(hiderDiv);
                     if (!smallRendered.opened) {
-                        paragraph.classList.add("hidable");
+                        smallDiv.classList.add("Hidable");
                     }
-                    PanelContent.appendChild(paragraph);
+                    smallDiv.addEventListener('click', () => {
+                        console.log("clicked");
+                        smallDiv.classList.remove('Hidable');
+                    });
+                    PanelContent.appendChild(smallDiv);
                 } else {
                     const smallRendered = smallItem as SmallPost;
 
@@ -262,6 +288,7 @@ function RenderPosts() {
                         smallHeader: SmallPanelHeader,
                         smallContent: SmallPanelContent
                     };
+                    DomContent[i].mainContent.childrenRoot = PanelContent;
                 }
                 j++;
             }
