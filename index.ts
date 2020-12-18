@@ -28,6 +28,7 @@ type DomRefMainContent = {
     children: Array<
         DomRefSmallContent
         | HTMLParagraphElement
+        | HTMLDivElement
         >
 }
 type DomRefSmallContent = {
@@ -122,7 +123,9 @@ function OnMainPanelClick(item: number) {
         // Close small posts
         for (let i = 0; i < (RenderFrom[item] as MainPost).Items.length; i++) {
             if (typeof (RenderFrom[item] as MainPost).Items[i] !== "string") {
-                (DomContent[item].mainContent.children[i] as DomRefSmallContent)?.root.classList.remove("Open");
+                ((DomContent[item].mainContent.children[i] as DomRefSmallContent)?.root
+                ?? DomContent[item].mainContent.children[i] as HTMLDivElement)
+                    .classList.remove("Open");
                 ((RenderFrom[item] as MainPost).Items[i] as SmallPost).opened = false;
             }
         }
@@ -134,8 +137,10 @@ function OnMainPanelClick(item: number) {
                 // Close Small posts
                 for (let j = 0; j < (RenderFrom[i] as MainPost).Items.length; j++) {
                     if (typeof (RenderFrom[i] as MainPost).Items[j] !== "string") {
-                        (DomContent[i].mainContent.children[j] as DomRefSmallContent)?.root.classList.remove("Open");
-                        ((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened = false;
+                        if ((DomContent[i].mainContent.children[j] as DomRefSmallContent).root) {
+                            (DomContent[i].mainContent.children[j] as DomRefSmallContent)?.root.classList.remove("Open");
+                            ((RenderFrom[i] as MainPost).Items[j] as SmallPost).opened = false;
+                        }
                     }
                 }
                 DomContent[i].mainHeader.classList.remove("Open");
@@ -143,9 +148,9 @@ function OnMainPanelClick(item: number) {
                 (RenderFrom[i] as MainPost).opened = false;
             }
         }
+        console.log(DomContent[item].mainContent.content);
         DomContent[item].mainHeader.classList.add("Open");
         DomContent[item].mainContent.content.classList.add("Open");
-        console.log(DomContent[item].mainContent.childrenRoot);
         BigContentRef = DomContent[item].mainContent.childrenRoot;
         (RenderFrom[item] as MainPost).opened = true;
     }
@@ -158,8 +163,10 @@ function OnSmallPanelClick(i: number, j: number) {
     } else {
         for (let item = 0; item < (RenderFrom[i] as MainPost).Items.length; item++) {
             if (typeof (RenderFrom[i] as MainPost).Items[item] !== "string") {
-                (DomContent[i].mainContent.children[item] as DomRefSmallContent)?.root.classList.remove("Open");
-                ((RenderFrom[i] as MainPost).Items[item] as SmallPost).opened = false;
+                if ((DomContent[i].mainContent.children[item] as DomRefSmallContent).root) {
+                    (DomContent[i].mainContent.children[item] as DomRefSmallContent)?.root.classList.remove("Open");
+                    ((RenderFrom[i] as MainPost).Items[item] as SmallPost).opened = false;
+                }
             }
         }
         (DomContent[i].mainContent.children[j] as DomRefSmallContent).root.classList.add("Open");
@@ -241,13 +248,11 @@ function RenderPosts() {
                     const hiderDiv = document.createElement("div") as HTMLDivElement;
                     smallDiv.appendChild(paragraph);
                     smallDiv.appendChild(hiderDiv);
-                    if (!smallRendered.opened) {
-                        smallDiv.classList.add("Hidable");
-                    }
                     smallDiv.addEventListener('click', () => {
                         console.log("clicked");
-                        smallDiv.classList.remove('Hidable');
+                        smallDiv.classList.add('Open');
                     });
+                    DomContent[i].mainContent.children[j] = smallDiv;
                     PanelContent.appendChild(smallDiv);
                 } else {
                     const smallRendered = smallItem as SmallPost;

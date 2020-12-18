@@ -79,7 +79,9 @@ function OnMainPanelClick(item) {
         // Close small posts
         for (let i = 0; i < RenderFrom[item].Items.length; i++) {
             if (typeof RenderFrom[item].Items[i] !== "string") {
-                DomContent[item].mainContent.children[i]?.root.classList.remove("Open");
+                (DomContent[item].mainContent.children[i]?.root
+                    ?? DomContent[item].mainContent.children[i])
+                    .classList.remove("Open");
                 RenderFrom[item].Items[i].opened = false;
             }
         }
@@ -92,8 +94,10 @@ function OnMainPanelClick(item) {
                 // Close Small posts
                 for (let j = 0; j < RenderFrom[i].Items.length; j++) {
                     if (typeof RenderFrom[i].Items[j] !== "string") {
-                        DomContent[i].mainContent.children[j]?.root.classList.remove("Open");
-                        RenderFrom[i].Items[j].opened = false;
+                        if (DomContent[i].mainContent.children[j].root) {
+                            DomContent[i].mainContent.children[j]?.root.classList.remove("Open");
+                            RenderFrom[i].Items[j].opened = false;
+                        }
                     }
                 }
                 DomContent[i].mainHeader.classList.remove("Open");
@@ -101,9 +105,9 @@ function OnMainPanelClick(item) {
                 RenderFrom[i].opened = false;
             }
         }
+        console.log(DomContent[item].mainContent.content);
         DomContent[item].mainHeader.classList.add("Open");
         DomContent[item].mainContent.content.classList.add("Open");
-        console.log(DomContent[item].mainContent.childrenRoot);
         BigContentRef = DomContent[item].mainContent.childrenRoot;
         RenderFrom[item].opened = true;
     }
@@ -117,8 +121,10 @@ function OnSmallPanelClick(i, j) {
     else {
         for (let item = 0; item < RenderFrom[i].Items.length; item++) {
             if (typeof RenderFrom[i].Items[item] !== "string") {
-                DomContent[i].mainContent.children[item]?.root.classList.remove("Open");
-                RenderFrom[i].Items[item].opened = false;
+                if (DomContent[i].mainContent.children[item].root) {
+                    DomContent[i].mainContent.children[item]?.root.classList.remove("Open");
+                    RenderFrom[i].Items[item].opened = false;
+                }
             }
         }
         DomContent[i].mainContent.children[j].root.classList.add("Open");
@@ -198,13 +204,11 @@ function RenderPosts() {
                     const hiderDiv = document.createElement("div");
                     smallDiv.appendChild(paragraph);
                     smallDiv.appendChild(hiderDiv);
-                    if (!smallRendered.opened) {
-                        smallDiv.classList.add("Hidable");
-                    }
                     smallDiv.addEventListener('click', () => {
                         console.log("clicked");
-                        smallDiv.classList.remove('Hidable');
+                        smallDiv.classList.add('Open');
                     });
+                    DomContent[i].mainContent.children[j] = smallDiv;
                     PanelContent.appendChild(smallDiv);
                 }
                 else {

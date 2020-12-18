@@ -74,21 +74,18 @@ Span.PanelOpenSpan {
     mask-image: linear-gradient(rgba(0, 0, 0, 1.0), transparent);   
 }
 
-.Rollable {
+.Rollable > p {
+    height: 4em;
+    overflow: hidden;
     margin: 0;
     padding: 0;
 }
 
-.Hidable > p {
-    height: 4em;
-    overflow: hidden;
+.Rollable.Open > p {
+    height: auto;
 }
 
 .Rollable > div {
-    display: none;
-}
-
-.Hidable > div {
     display: block;
     margin-top: -2em;
     padding: 0;
@@ -116,4 +113,8 @@ Span.PanelOpenSpan {
         rgba(255, 255, 255, 0) 0%,
         rgba(255, 255, 255, 1) 100%
     );
+}
+
+.Rollable.Open > div {
+    display: none;
 }
