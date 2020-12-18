@@ -70,10 +70,6 @@ Span.PanelOpenSpan {
     padding: 10px;
 }
 
-.Hidable {
-    mask-image: linear-gradient(rgba(0, 0, 0, 1.0), transparent);   
-}
-
 .Rollable > p {
     height: 4em;
     overflow: hidden;
