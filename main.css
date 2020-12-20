@@ -1,6 +1,6 @@
 #nav {
     z-index: 2;
-    position: fixed;
+    position: fixed !important;
     top: 0;
     height: 50px;
     width: 100%;
@@ -34,7 +34,9 @@ Span.PanelOpenSpan {
 
 .MainPanelHeader, .SmallPanelHeader {
     background-color: white !important;
-    width: 90%;
+    width: 97%;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.5);
+    margin-bottom: .5em;
     height: 20px;
     cursor: pointer;
 }
